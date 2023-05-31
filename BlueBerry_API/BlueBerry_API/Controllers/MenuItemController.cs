@@ -39,6 +39,37 @@ namespace BlueBerry_API.Controllers
             }
 
         }
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetMenuItem(int id)
+        {
+            try
+            {
+                if (id==0)
+                {
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest(_response);
+                }
+                
+                var result = await _db.MenuItems.FirstOrDefaultAsync(a => a.Id == id);
+                if (result == null)
+                {
+                    _response.StatusCode = HttpStatusCode.NotFound;
+                    return NotFound(_response);
+                }
+                _response.Result = result;
+                _response.StatusCode = HttpStatusCode.OK;
+                return Ok(_response);
+            }
+            catch (Exception e)
+            {
+                _response.Result = e.Message;
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+                return BadRequest(_response);
+
+            }
+
+        }
 
 
 
