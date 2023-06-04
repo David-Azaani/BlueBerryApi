@@ -1,5 +1,7 @@
 using BlueBerry_API.Data;
 using BlueBerry_API.Model;
+using BlueBerry_API.Services;
+using BlueBerry_API.Services.IService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +18,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddTransient<IFileUpload, FileUpload>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
