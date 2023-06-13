@@ -54,6 +54,7 @@ namespace BlueBerry_API.Controllers
                 if (id == 0)
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.IsSuccess=false;  
                     return BadRequest(_response);
                 }
 
@@ -61,6 +62,7 @@ namespace BlueBerry_API.Controllers
                 if (result == null)
                 {
                     _response.StatusCode = HttpStatusCode.NotFound;
+                    _response.IsSuccess = false;
                     return NotFound(_response);
                 }
                 _response.Result = result;
@@ -190,7 +192,9 @@ namespace BlueBerry_API.Controllers
         {
             if (id == 0 || id <= 0)
             {
-                return BadRequest();
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.IsSuccess = false;
+                return BadRequest(); 
             }
             var menuItem = await _db.MenuItems.FindAsync(id);
             if (menuItem == null)
