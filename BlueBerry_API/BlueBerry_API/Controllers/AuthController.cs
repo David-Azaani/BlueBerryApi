@@ -33,7 +33,7 @@ namespace BlueBerry_API.Controllers
             _response = new ApiResponse();
         }
 
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDTO model)
         {
 
@@ -44,7 +44,7 @@ namespace BlueBerry_API.Controllers
                 _response.IsSuccess = false;
                 _response.StatusCode = HttpStatusCode.BadRequest;
                 _response.ErrorMessages.Add("User already Exists");
-                
+
                 return BadRequest(_response);
             }
 
@@ -53,7 +53,7 @@ namespace BlueBerry_API.Controllers
                 UserName = model.Username,
                 Email = model.Username,
                 NormalizedEmail = model.Username.ToUpper(),
-                Name = model.Name
+                Name = model.Name ?? model.Username
             };
             try
             {
@@ -103,5 +103,64 @@ namespace BlueBerry_API.Controllers
             //_response.ErrorMessages.AddRange(result.Errors.Select(a => a.Description));
             return BadRequest(_response);
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO model)
+        {
+            try
+            {
+                ApplicationUser user =
+                    _db.ApplicationUsers.FirstOrDefault(a => a.UserName.ToLower() == model.Username.ToLower());
+                if (user == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages.Add("User is not Existed");
+
+                    return BadRequest(_response);
+                }
+
+                bool isValidPassweord = await _userManager.CheckPasswordAsync(user, model.Password);
+
+                if (!isValidPassweord)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages.Add("User/Password is Invalid");
+                    _response.Result = new LoginResponseDTO();
+                    return BadRequest(_response);
+                }
+                // Generate Jwt Token
+
+                LoginResponseDTO loginResponseDto = new()
+                {
+                    Email = user.Email,
+                    Token = "test",
+                };
+
+                if (loginResponseDto.Email == null || string.IsNullOrEmpty(loginResponseDto.Token))
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages.Add("User/Password is Invalid");
+                    return BadRequest(_response);
+                }
+                _response.IsSuccess = true;
+                _response.StatusCode = HttpStatusCode.OK;
+                _response.Result = loginResponseDto;
+                return Ok(_response);
+            }
+            catch (Exception e)
+            {
+                _response.ErrorMessages.Add(e.Message);
+            }
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.BadRequest;
+
+            return BadRequest(_response);
+
+
+        }
+
     }
 }
