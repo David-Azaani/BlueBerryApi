@@ -1,4 +1,7 @@
-﻿using System.Net;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Security.Claims;
+using System.Text;
 using BlueBerry_API.Data;
 using BlueBerry_API.Model;
 using BlueBerry_API.Model.Dto;
@@ -8,6 +11,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BlueBerry_API.Controllers
 {
@@ -131,11 +135,32 @@ namespace BlueBerry_API.Controllers
                     return BadRequest(_response);
                 }
                 // Generate Jwt Token
+                //K+S
+                var userRoles = await _userManager.GetRolesAsync(user);
+                #region Generating Jwt
+                JwtSecurityTokenHandler tokenHandler = new();
+                byte[] key = Encoding.ASCII.GetBytes(_secretKey);
+                SecurityTokenDescriptor tokenDescriptor = new()
+                {
+                    Subject = new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim("fullname",user.Name),
+                        new Claim("id",user.Id),
+                        new Claim(ClaimTypes.Email,user.Email??user.UserName),
+                        new Claim(ClaimTypes.Role,userRoles.FirstOrDefault())
+
+                    }),
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+
+                };
+                SecurityToken token = tokenHandler.CreateToken(tokenDescriptor); 
+                #endregion
 
                 LoginResponseDTO loginResponseDto = new()
                 {
                     Email = user.Email,
-                    Token = "test",
+                    Token = tokenHandler.WriteToken(token),
                 };
 
                 if (loginResponseDto.Email == null || string.IsNullOrEmpty(loginResponseDto.Token))
