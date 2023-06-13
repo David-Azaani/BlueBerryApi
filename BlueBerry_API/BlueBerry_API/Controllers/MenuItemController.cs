@@ -1,6 +1,9 @@
 ﻿using System.Net;
+using AutoMapper;
 using BlueBerry_API.Data;
 using BlueBerry_API.Model;
+using BlueBerry_API.Model.Dto;
+using BlueBerry_API.Services.IService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,11 +15,15 @@ namespace BlueBerry_API.Controllers
     public class MenuItemController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
+        private readonly IMapper _mapper;
+        private readonly IFileUpload _fileUpload;
         private readonly ApiResponse _response;
 
-        public MenuItemController(ApplicationDbContext db)
+        public MenuItemController(ApplicationDbContext db, IMapper mapper,IFileUpload fileUpload)
         {
             _db = db;
+            _mapper = mapper;
+            _fileUpload = fileUpload;
             _response = new ApiResponse();
         }
 
@@ -39,7 +46,7 @@ namespace BlueBerry_API.Controllers
             }
 
         }
-        [HttpGet("{id:int}")]
+        [HttpGet("{id:int}",Name = "GetMenuItem")]
         public async Task<IActionResult> GetMenuItem(int id)
         {
             try
@@ -69,6 +76,46 @@ namespace BlueBerry_API.Controllers
 
             }
 
+        }
+
+        [HttpPost]
+        //we use fromform isntead of frombidy because we want to send image
+
+        public async Task<ActionResult<ApiResponse>> CreateMenuItem([FromForm] MenuItemCreateDTO menuItemCreateDto)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+
+                    if (menuItemCreateDto.File.Length == 0 || menuItemCreateDto.File ==null)
+                    {
+                        return BadRequest();
+                    }
+                    var result = _mapper.Map<MenuItem>(menuItemCreateDto);
+                    result.Image = await _fileUpload.UploadFile(menuItemCreateDto.File);
+                   // string fileName = $"{Guid.NewGuid()}{Path.GetExtension(menuItemCreateDto.File.FileName)}";
+                    _db.Add(result);
+                    await _db.SaveChangesAsync();
+                    _response.Result = result;
+                    _response.StatusCode = HttpStatusCode.Created;
+                    return CreatedAtRoute("GetMenuItem",new{id=result.Id},_response);
+                }
+                else
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string>() {ex.Message};
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+            }
+
+            return _response;
         }
 
 

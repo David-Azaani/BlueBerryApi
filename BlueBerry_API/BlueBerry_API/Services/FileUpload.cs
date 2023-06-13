@@ -36,14 +36,15 @@ namespace BlueBerry_API.Services
             }
         }
 
-        public async Task<string> UploadFile(IBrowserFile file)
+        public async Task<string> UploadFile(IFormFile file)
         {
             try
             {
-                FileInfo fileInfo = new FileInfo(file.Name);
+                
+                FileInfo fileInfo = new FileInfo(file.FileName);
                 var fileName = Guid.NewGuid().ToString() + fileInfo.Extension;
-                var folderDirectory = $"{_webHostEnvironment.WebRootPath}\\RoomImages";
-                var path = Path.Combine(_webHostEnvironment.WebRootPath, "RoomImages", fileName);
+                var folderDirectory = $"{_webHostEnvironment.WebRootPath}\\MenuItemImages";
+                var path = Path.Combine(_webHostEnvironment.WebRootPath, "MenuItemImages", fileName);
 
                 var memoryStream = new MemoryStream();
                 await file.OpenReadStream().CopyToAsync(memoryStream);
@@ -59,7 +60,7 @@ namespace BlueBerry_API.Services
                 }
                 //var url = $"{_configuration.GetValue<string>("ServerUrl")}";
                 var url = $"{_httpContextAccessor.HttpContext.Request.Scheme}://{_httpContextAccessor.HttpContext.Request.Host.Value}/";
-                var fullPath = $"{url}RoomImages/{fileName}";
+                var fullPath = $"{url}MenuItemImages/{fileName}";
                 return fullPath;
             }
             catch (Exception ex)
