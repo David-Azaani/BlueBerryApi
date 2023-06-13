@@ -19,7 +19,7 @@ namespace BlueBerry_API.Controllers
         private readonly IFileUpload _fileUpload;
         private readonly ApiResponse _response;
 
-        public MenuItemController(ApplicationDbContext db, IMapper mapper,IFileUpload fileUpload)
+        public MenuItemController(ApplicationDbContext db, IMapper mapper, IFileUpload fileUpload)
         {
             _db = db;
             _mapper = mapper;
@@ -46,17 +46,17 @@ namespace BlueBerry_API.Controllers
             }
 
         }
-        [HttpGet("{id:int}",Name = "GetMenuItem")]
+        [HttpGet("{id:int}", Name = "GetMenuItem")]
         public async Task<IActionResult> GetMenuItem(int id)
         {
             try
             {
-                if (id==0)
+                if (id == 0)
                 {
                     _response.StatusCode = HttpStatusCode.BadRequest;
                     return BadRequest(_response);
                 }
-                
+
                 var result = await _db.MenuItems.FirstOrDefaultAsync(a => a.Id == id);
                 if (result == null)
                 {
@@ -88,18 +88,25 @@ namespace BlueBerry_API.Controllers
                 if (ModelState.IsValid)
                 {
 
-                    if (menuItemCreateDto.File.Length == 0 || menuItemCreateDto.File ==null)
+                    if (menuItemCreateDto.File.Length == 0 || menuItemCreateDto.File == null)
                     {
-                        return BadRequest();
+                        _response.IsSuccess = false;
+                        _response.StatusCode = HttpStatusCode.BadRequest;
+                        _response.ErrorMessages = new List<string>()
+                        {
+                            "image File is  Essential"
+
+                        };
+                        return BadRequest(_response);
                     }
                     var result = _mapper.Map<MenuItem>(menuItemCreateDto);
                     result.Image = await _fileUpload.UploadFile(menuItemCreateDto.File);
-                   // string fileName = $"{Guid.NewGuid()}{Path.GetExtension(menuItemCreateDto.File.FileName)}";
+                    // string fileName = $"{Guid.NewGuid()}{Path.GetExtension(menuItemCreateDto.File.FileName)}";
                     _db.Add(result);
                     await _db.SaveChangesAsync();
                     _response.Result = result;
                     _response.StatusCode = HttpStatusCode.Created;
-                    return CreatedAtRoute("GetMenuItem",new{id=result.Id},_response);
+                    return CreatedAtRoute("GetMenuItem", new { id = result.Id }, _response);
                 }
                 else
                 {
@@ -111,7 +118,7 @@ namespace BlueBerry_API.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() {ex.Message};
+                _response.ErrorMessages = new List<string>() { ex.Message };
                 _response.StatusCode = HttpStatusCode.InternalServerError;
             }
 
@@ -119,6 +126,64 @@ namespace BlueBerry_API.Controllers
         }
 
 
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<ApiResponse>> UpdateMenuItem(int id, [FromForm] MenuItemUpdateDTO menuItemUpdateDto)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+
+                    if (menuItemUpdateDto == null || menuItemUpdateDto.Id != id)
+                    {
+                        _response.IsSuccess = false;
+                        _response.StatusCode = HttpStatusCode.BadRequest;
+
+                        return BadRequest(_response);
+                    }
+
+                    var menuItemFromDb = await _db.MenuItems.FindAsync(id);
+                    if (menuItemFromDb == null)
+                    {
+                        _response.IsSuccess = false;
+                        _response.StatusCode = HttpStatusCode.BadRequest;
+
+                        return BadRequest(_response);
+                    }
+
+                    var newUpdatedto = _mapper.Map<MenuItemUpdateDTO, MenuItem>(menuItemUpdateDto, menuItemFromDb);
+
+                    // var updateDto = _mapper.Map<MenuItem>(menuItemUpdateDto);
+
+                    if (menuItemUpdateDto.File != null && menuItemUpdateDto.File.Length > 0)
+                    {
+                        _fileUpload.DeleteFile(menuItemFromDb.Image.Split('/').Last());
+                        newUpdatedto.Image = await _fileUpload.UploadFile(menuItemUpdateDto.File);
+                    }
+
+                    _db.Update(newUpdatedto);
+                    await _db.SaveChangesAsync();
+                    _response.Result = newUpdatedto;
+                    _response.StatusCode = HttpStatusCode.NoContent;
+                    return Ok(_response);
+                }
+                else
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.ErrorMessages = new List<string>() { ex.Message };
+                _response.StatusCode = HttpStatusCode.InternalServerError;
+            }
+
+            return _response;
+        }
 
     }
 }

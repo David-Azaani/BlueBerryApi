@@ -22,7 +22,7 @@ namespace BlueBerry_API.Services
         {
             try
             {
-                var path = $"{_webHostEnvironment.WebRootPath}\\RoomImages\\{fileName}";
+                var path = $"{_webHostEnvironment.WebRootPath}\\MenuItemImages\\{fileName}";
                 if (File.Exists(path))
                 {
                     File.Delete(path);
