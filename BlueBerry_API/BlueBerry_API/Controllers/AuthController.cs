@@ -156,6 +156,7 @@ namespace BlueBerry_API.Controllers
             }
             _response.IsSuccess = false;
             _response.StatusCode = HttpStatusCode.BadRequest;
+            _response.Result = new LoginResponseDTO();
 
             return BadRequest(_response);
 
