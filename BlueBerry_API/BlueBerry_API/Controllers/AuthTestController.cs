@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using BlueBerry_API.Utility;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlueBerry_API.Controllers
@@ -9,6 +11,7 @@ namespace BlueBerry_API.Controllers
     {
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<string>> GetSomething()
         {
 
@@ -16,6 +19,7 @@ namespace BlueBerry_API.Controllers
             return "You are Authenticated";
         }
 
+        [Authorize(Roles = SD.Role_Admin)]
         [HttpGet("{id:int}")]
         public async Task<ActionResult<string>> GetSomething(int someValue)
         {
