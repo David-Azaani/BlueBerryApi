@@ -152,9 +152,9 @@ namespace BlueBerry_API.Controllers
                         return BadRequest(_response);
                     }
 
-                     var newUpdatedto = _mapper.Map<MenuItemUpdateDTO, MenuItem>(menuItemUpdateDto, menuItemFromDb);
+                    var newUpdatedto = _mapper.Map<MenuItemUpdateDTO, MenuItem>(menuItemUpdateDto, menuItemFromDb);
 
-                   // var newUpdatedto = _mapper.Map<MenuItem>(menuItemUpdateDto); //  this way doesn track the entity
+                    // var newUpdatedto = _mapper.Map<MenuItem>(menuItemUpdateDto); //  this way doesn track the entity
 
                     if (menuItemUpdateDto.File != null && menuItemUpdateDto.File.Length > 0)
                     {
@@ -183,6 +183,28 @@ namespace BlueBerry_API.Controllers
             }
 
             return _response;
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult<ApiResponse>> DeleteMenuItem(int id)
+        {
+            if (id == 0 || id <= 0)
+            {
+                return BadRequest();
+            }
+            var menuItem = await _db.MenuItems.FindAsync(id);
+            if (menuItem == null)
+            {
+                return BadRequest();
+            }
+            _fileUpload.DeleteFile(menuItem.Image.Split('/').Last());
+            _db.MenuItems.Remove(menuItem);
+          
+            await _db.SaveChangesAsync();
+            _response.IsSuccess = true;
+            _response.StatusCode= HttpStatusCode.NoContent;
+            return Ok(_response);
+
         }
 
     }
