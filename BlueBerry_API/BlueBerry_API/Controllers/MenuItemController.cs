@@ -152,9 +152,9 @@ namespace BlueBerry_API.Controllers
                         return BadRequest(_response);
                     }
 
-                    var newUpdatedto = _mapper.Map<MenuItemUpdateDTO, MenuItem>(menuItemUpdateDto, menuItemFromDb);
+                     var newUpdatedto = _mapper.Map<MenuItemUpdateDTO, MenuItem>(menuItemUpdateDto, menuItemFromDb);
 
-                    // var updateDto = _mapper.Map<MenuItem>(menuItemUpdateDto);
+                   // var newUpdatedto = _mapper.Map<MenuItem>(menuItemUpdateDto); //  this way doesn track the entity
 
                     if (menuItemUpdateDto.File != null && menuItemUpdateDto.File.Length > 0)
                     {
