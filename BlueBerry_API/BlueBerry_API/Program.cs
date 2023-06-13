@@ -1,3 +1,4 @@
+using System.Text;
 using BlueBerry_API.Data;
 using BlueBerry_API.Model;
 using BlueBerry_API.Services;
@@ -5,6 +6,8 @@ using BlueBerry_API.Services.IService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +27,32 @@ builder.Services.Configure<IdentityOptions>(opt =>
     opt.Password.RequireNonAlphanumeric = true;
 });
 
+#region JwtConf
+
+var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
+builder.Services.AddAuthentication(u =>
+{
+    u.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    u.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(u =>
+{
+    u.RequireHttpsMetadata = false;
+    u.SaveToken = true;
+    u.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+    };
+
+});
+builder.Services.AddCors(); // for working call api from other api
+
+
+#endregion
+
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -41,7 +70,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseHttpsRedirection();
-
+app.UseCors(o => o.AllowAnyHeader().AllowAnyHeader().AllowAnyOrigin());
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
