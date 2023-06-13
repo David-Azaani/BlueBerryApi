@@ -94,11 +94,7 @@ namespace BlueBerry_API.Controllers
                     {
                         _response.IsSuccess = false;
                         _response.StatusCode = HttpStatusCode.BadRequest;
-                        _response.ErrorMessages = new List<string>()
-                        {
-                            "image File is  Essential"
-
-                        };
+                        _response.ErrorMessages.Add("Where is Image?");
                         return BadRequest(_response);
                     }
                     var result = _mapper.Map<MenuItem>(menuItemCreateDto);
@@ -120,7 +116,7 @@ namespace BlueBerry_API.Controllers
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
-                _response.ErrorMessages = new List<string>() { ex.Message };
+                _response.ErrorMessages.Add(ex.Message);
                 _response.StatusCode = HttpStatusCode.InternalServerError;
             }
 
