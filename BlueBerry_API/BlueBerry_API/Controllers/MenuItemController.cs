@@ -198,6 +198,8 @@ namespace BlueBerry_API.Controllers
                 return BadRequest();
             }
             _fileUpload.DeleteFile(menuItem.Image.Split('/').Last());
+
+            Thread.Sleep(2000); // for testing we defined a sleep deliberately
             _db.MenuItems.Remove(menuItem);
           
             await _db.SaveChangesAsync();
