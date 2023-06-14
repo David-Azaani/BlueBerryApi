@@ -4,6 +4,7 @@ using BlueBerry_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlueBerry_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230614162811_adding")]
+    partial class adding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -110,6 +113,8 @@ namespace BlueBerry_API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MenuItemId");
+
+                    b.HasIndex("ShoppingCardId");
 
                     b.ToTable("CardItems");
                 });
@@ -256,6 +261,9 @@ namespace BlueBerry_API.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClientSecret")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StripPaymentIntentId")
                         .HasColumnType("nvarchar(max)");
@@ -409,6 +417,12 @@ namespace BlueBerry_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BlueBerry_API.Model.ShoppingCard", null)
+                        .WithMany("CardItems")
+                        .HasForeignKey("ShoppingCardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("MenuItem");
                 });
 
@@ -461,6 +475,11 @@ namespace BlueBerry_API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BlueBerry_API.Model.ShoppingCard", b =>
+                {
+                    b.Navigation("CardItems");
                 });
 #pragma warning restore 612, 618
         }

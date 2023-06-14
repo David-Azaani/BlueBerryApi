@@ -13,6 +13,8 @@ namespace BlueBerry_API.Data
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<MenuItem> MenuItems { get; set; }
+        public DbSet<ShoppingCard> ShoppingCards { get; set; }
+        public DbSet<CardItem> CardItems { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
