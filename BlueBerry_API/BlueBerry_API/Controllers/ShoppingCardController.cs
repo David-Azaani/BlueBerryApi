@@ -12,7 +12,7 @@ namespace BlueBerry_API.Controllers
     public class ShoppingCardController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
-        private readonly ApiResponse _response;
+        private  ApiResponse _response;
 
         public ShoppingCardController(ApplicationDbContext db)
         {

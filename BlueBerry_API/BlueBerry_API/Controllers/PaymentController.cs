@@ -9,16 +9,16 @@ using Stripe;
 
 namespace BlueBerry_API.Controllers
 {
-    [Route("api/Payment")]
+    [Route("api/[controller]")]
     [ApiController]
     public class PaymentController : ControllerBase
     {
-        private readonly ApplicationDbContext _db;
+         private readonly ApplicationDbContext _db;
         private readonly IConfiguration _configuration;
-        private ApiResponse _response;
+         private  ApiResponse _response;
 
         public PaymentController(ApplicationDbContext db
-        , IConfiguration configuration, ApiResponse response)
+        , IConfiguration configuration)
         {
             _db = db;
             _configuration = configuration;
@@ -32,8 +32,16 @@ namespace BlueBerry_API.Controllers
 
             try
             {
+                if (string.IsNullOrEmpty(userId))
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages.Add("Incorrect UserIDF!");
+                    return BadRequest(_response);
+                }
                 var shoppingCard = await _db.ShoppingCards
                     .Include(a => a.CardItems)
+                    .ThenInclude(a=>a.MenuItem)
                     .FirstOrDefaultAsync(a => a.UserId == userId);
 
                 if (shoppingCard == null || shoppingCard.CardItems == null || !shoppingCard.CardItems.Any())
@@ -64,7 +72,7 @@ namespace BlueBerry_API.Controllers
                 var service = new PaymentIntentService();
                 var response = await service.CreateAsync(options);
                 shoppingCard.StripPaymentIntentId = response.PaymentMethodId;
-                shoppingCard.ClientSecret = response.ClientSecret;
+                shoppingCard.ClientSecret = response.Id;
                  _response.Result = shoppingCard;
             }
             catch (Exception e)
