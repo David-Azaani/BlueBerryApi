@@ -95,10 +95,33 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+app.UseSwagger();
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+
     app.UseSwaggerUI();
+}
+else
+{
+    app.UseSwaggerUI(c =>
+
+        {
+
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My Api V1");
+            c.RoutePrefix = String.Empty;
+        }
+
+
+
+
+    );
+
+
 }
 
 app.UseStaticFiles();
