@@ -16,6 +16,9 @@ namespace BlueBerry_API.Data
         public DbSet<ShoppingCard> ShoppingCards { get; set; }
         public DbSet<CardItem> CardItems { get; set; }
 
+        public DbSet<OrderDetails> OrderDetailsEnumerable { get; set; }
+        public DbSet<OrderHeader> OrderHeaders { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
