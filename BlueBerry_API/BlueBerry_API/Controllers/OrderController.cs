@@ -111,8 +111,8 @@ namespace BlueBerry_API.Controllers
             try
             {
                 var order = _mapper.Map<OrderHeader>(orderHeaderDto);
-              
-               order.Status = string.IsNullOrEmpty(order.Status) ? SD.Status_Pending : order.Status ;
+
+                order.Status = string.IsNullOrEmpty(order.Status) ? SD.Status_Pending : order.Status;
 
                 _db.Add(order);
                 await _db.SaveChangesAsync();
@@ -140,5 +140,85 @@ namespace BlueBerry_API.Controllers
             return _response;
 
         }
+
+
+
+        [HttpPut("{id:int}")]
+
+        public async Task<ActionResult<ApiResponse>> UpdateOrderHeader(int id, [FromBody] OrderHeaderUpdateDTO orderHeaderUpdateDto)
+        {
+            try
+            {
+                if (orderHeaderUpdateDto == null || id != orderHeaderUpdateDto.OrderHeaderId)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    return BadRequest();
+                }
+                var orderHeaders = await _db.OrderHeaders.FirstOrDefaultAsync(a => a.OrderHeaderId == id);
+                if (orderHeaders == null)
+                {
+                    _response.IsSuccess = false;
+                    _response.StatusCode = HttpStatusCode.BadRequest;
+                    _response.ErrorMessages.Add("Order Doesn't Exist");
+                    return BadRequest();
+                }
+
+                if (!string.IsNullOrEmpty(orderHeaderUpdateDto.PickUpName))
+                {
+                    orderHeaders.PickUpName = orderHeaderUpdateDto.PickUpName;
+                }
+                if (!string.IsNullOrEmpty(orderHeaderUpdateDto.PickUpEmail))
+                {
+                    orderHeaders.PickUpEmail = orderHeaderUpdateDto.PickUpEmail;
+
+                }
+                if (!string.IsNullOrEmpty(orderHeaderUpdateDto.PickUpPhoneNumber))
+                {
+                    orderHeaders.PickUpPhoneNumber = orderHeaderUpdateDto.PickUpPhoneNumber;
+
+                }
+                if (!string.IsNullOrEmpty(orderHeaderUpdateDto.Status))
+                {
+                    orderHeaders.Status = orderHeaderUpdateDto.Status;
+                }
+                if (!string.IsNullOrEmpty(orderHeaderUpdateDto.StripePaymentIntentID))
+                {
+                    orderHeaders.StripePaymentIntentID = orderHeaderUpdateDto.StripePaymentIntentID;
+                }
+
+                await _db.SaveChangesAsync();
+                _response.IsSuccess = true;
+                _response.StatusCode = HttpStatusCode.NoContent;
+               
+                return BadRequest(_response);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                // var newOrderHeaderDto = _mapper.Map<OrderHeaderUpdateDTO, OrderHeader>(orderHeaderUpdateDto, orderHeaders);
+
+                // _db.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.BadRequest;
+                _response.ErrorMessages.Add(e.Message);
+            }
+            return _response;
+        }
+
     }
 }

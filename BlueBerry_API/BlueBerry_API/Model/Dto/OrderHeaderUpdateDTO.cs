@@ -13,7 +13,7 @@ namespace BlueBerry_API.Model.Dto
 
 
 
-        public DateTime OrderDate { get; set; }
+       
         public string StripePaymentIntentID { get; set; }
         public string Status { get; set; }
 
