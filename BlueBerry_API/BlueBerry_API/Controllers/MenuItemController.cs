@@ -19,7 +19,8 @@ namespace BlueBerry_API.Controllers
         private readonly IFileUpload _fileUpload;
         private readonly ApiResponse _response;
 
-        public MenuItemController(ApplicationDbContext db, IMapper mapper, IFileUpload fileUpload)
+        public MenuItemController(ApplicationDbContext db, IMapper mapper
+            , IFileUpload fileUpload)
         {
             _db = db;
             _mapper = mapper;

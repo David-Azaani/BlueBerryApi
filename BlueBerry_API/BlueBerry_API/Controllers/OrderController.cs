@@ -193,20 +193,7 @@ namespace BlueBerry_API.Controllers
                
                 return BadRequest(_response);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                
                 // var newOrderHeaderDto = _mapper.Map<OrderHeaderUpdateDTO, OrderHeader>(orderHeaderUpdateDto, orderHeaders);
 
                 // _db.SaveChangesAsync();
