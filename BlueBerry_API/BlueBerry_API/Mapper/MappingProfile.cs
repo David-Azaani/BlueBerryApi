@@ -10,6 +10,8 @@ namespace BlueBerry_API.Mapper
         {
             CreateMap<MenuItem, MenuItemCreateDTO>().ReverseMap();
             CreateMap<MenuItem, MenuItemUpdateDTO>().ReverseMap();
+            CreateMap<OrderHeader, OrderHeaderCreateDTO>().ReverseMap();
+            CreateMap<OrderDetails, OrderDetailsCreateDTO>().ReverseMap();
 
             //CreateMap<HotelRoomImage, HotelRoomImageDTO>().ReverseMap();
 
