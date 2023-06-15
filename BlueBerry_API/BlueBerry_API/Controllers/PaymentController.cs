@@ -13,9 +13,9 @@ namespace BlueBerry_API.Controllers
     [ApiController]
     public class PaymentController : ControllerBase
     {
-         private readonly ApplicationDbContext _db;
+        private readonly ApplicationDbContext _db;
         private readonly IConfiguration _configuration;
-         private  ApiResponse _response;
+        private ApiResponse _response;
 
         public PaymentController(ApplicationDbContext db
         , IConfiguration configuration)
@@ -32,17 +32,28 @@ namespace BlueBerry_API.Controllers
 
             try
             {
+                //if (string.IsNullOrEmpty(userId))
+                //{
+                //    _response.IsSuccess = false;
+                //    _response.StatusCode = HttpStatusCode.BadRequest;
+                //    _response.ErrorMessages.Add("Incorrect UserIDF!");
+                //    return BadRequest(_response);
+                //}
+                ShoppingCard shoppingCard;
+
                 if (string.IsNullOrEmpty(userId))
                 {
-                    _response.IsSuccess = false;
-                    _response.StatusCode = HttpStatusCode.BadRequest;
-                    _response.ErrorMessages.Add("Incorrect UserIDF!");
-                    return BadRequest(_response);
+                    shoppingCard = new ();
                 }
-                var shoppingCard = await _db.ShoppingCards
-                    .Include(a => a.CardItems)
-                    .ThenInclude(a=>a.MenuItem)
-                    .FirstOrDefaultAsync(a => a.UserId == userId);
+                else
+                {
+                    shoppingCard = await _db.ShoppingCards
+                     .Include(a => a.CardItems)
+                     .ThenInclude(a => a.MenuItem)
+                     .FirstOrDefaultAsync(a => a.UserId == userId);
+                }
+
+
 
                 if (shoppingCard == null || shoppingCard.CardItems == null || !shoppingCard.CardItems.Any())
                 {
@@ -73,7 +84,7 @@ namespace BlueBerry_API.Controllers
                 var response = await service.CreateAsync(options);
                 shoppingCard.StripPaymentIntentId = response.PaymentMethodId;
                 shoppingCard.ClientSecret = response.Id;
-                 _response.Result = shoppingCard;
+                _response.Result = shoppingCard;
             }
             catch (Exception e)
             {
@@ -86,7 +97,7 @@ namespace BlueBerry_API.Controllers
 
             _response.IsSuccess = true;
             _response.StatusCode = HttpStatusCode.OK;
-           
+
             return Ok(_response);
 
 
