@@ -39,52 +39,52 @@ namespace BlueBerry_API.Controllers
                 //    _response.ErrorMessages.Add("Incorrect UserIDF!");
                 //    return BadRequest(_response);
                 //}
-                ShoppingCard shoppingCard;
+                ShoppingCart shoppingCart;
 
                 if (string.IsNullOrEmpty(userId))
                 {
-                    shoppingCard = new ();
+                    shoppingCart = new ();
                 }
                 else
                 {
-                    shoppingCard = await _db.ShoppingCards
-                     .Include(a => a.CardItems)
+                    shoppingCart = await _db.ShoppingCarts
+                     .Include(a => a.CartItems)
                      .ThenInclude(a => a.MenuItem)
                      .FirstOrDefaultAsync(a => a.UserId == userId);
                 }
 
 
 
-                if (shoppingCard == null || shoppingCard.CardItems == null || !shoppingCard.CardItems.Any())
+                if (shoppingCart == null || shoppingCart.CartItems == null || !shoppingCart.CartItems.Any())
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = HttpStatusCode.BadRequest;
-                    _response.ErrorMessages.Add("Error in Payment,Couldn't Find any ShoppingCard or CartItem !!!");
+                    _response.ErrorMessages.Add("Error in Payment,Couldn't Find any ShoppingCart or CartItem !!!");
                     return BadRequest(_response);
                 }
 
                 #region CreatePayment
 
                 StripeConfiguration.ApiKey = _configuration["Stripe:ApiKey"];
-                double cardTotal = shoppingCard.CardItems.Sum(a => a.Quantity * a.MenuItem.Price);
+                double CartTotal = shoppingCart.CartItems.Sum(a => a.Quantity * a.MenuItem.Price);
 
 
                 var options = new PaymentIntentCreateOptions()
                 {
-                    Amount = (int)(cardTotal * 100),
+                    Amount = (int)(CartTotal * 100),
                     Currency = "usd",
                     PaymentMethodTypes = new List<string>()
                     {
-                        "card"
+                        "Cart"
 
                     }
 
                 };
                 var service = new PaymentIntentService();
                 var response = await service.CreateAsync(options);
-                shoppingCard.StripPaymentIntentId = response.PaymentMethodId;
-                shoppingCard.ClientSecret = response.Id;
-                _response.Result = shoppingCard;
+                shoppingCart.StripPaymentIntentId = response.PaymentMethodId;
+                shoppingCart.ClientSecret = response.Id;
+                _response.Result = shoppingCart;
             }
             catch (Exception e)
             {

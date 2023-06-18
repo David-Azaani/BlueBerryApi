@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlueBerry_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230615084217_TableNamesedit")]
-    partial class TableNamesedit
+    [Migration("20230618183700_newTableSet")]
+    partial class newTableSet
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -93,7 +93,7 @@ namespace BlueBerry_API.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("BlueBerry_API.Model.CardItem", b =>
+            modelBuilder.Entity("BlueBerry_API.Model.CartItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -107,16 +107,16 @@ namespace BlueBerry_API.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int>("ShoppingCardId")
+                    b.Property<int>("ShoppingCartId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MenuItemId");
 
-                    b.HasIndex("ShoppingCardId");
+                    b.HasIndex("ShoppingCartId");
 
-                    b.ToTable("CardItems");
+                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("BlueBerry_API.Model.MenuItem", b =>
@@ -332,7 +332,7 @@ namespace BlueBerry_API.Migrations
                     b.ToTable("OrderHeaders");
                 });
 
-            modelBuilder.Entity("BlueBerry_API.Model.ShoppingCard", b =>
+            modelBuilder.Entity("BlueBerry_API.Model.ShoppingCart", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -340,12 +340,15 @@ namespace BlueBerry_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ShoppingCards");
+                    b.ToTable("ShoppingCarts");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -481,7 +484,7 @@ namespace BlueBerry_API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BlueBerry_API.Model.CardItem", b =>
+            modelBuilder.Entity("BlueBerry_API.Model.CartItem", b =>
                 {
                     b.HasOne("BlueBerry_API.Model.MenuItem", "MenuItem")
                         .WithMany()
@@ -489,9 +492,9 @@ namespace BlueBerry_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BlueBerry_API.Model.ShoppingCard", null)
-                        .WithMany("CardItems")
-                        .HasForeignKey("ShoppingCardId")
+                    b.HasOne("BlueBerry_API.Model.ShoppingCart", null)
+                        .WithMany("CartItems")
+                        .HasForeignKey("ShoppingCartId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -580,9 +583,9 @@ namespace BlueBerry_API.Migrations
                     b.Navigation("OrderDetails");
                 });
 
-            modelBuilder.Entity("BlueBerry_API.Model.ShoppingCard", b =>
+            modelBuilder.Entity("BlueBerry_API.Model.ShoppingCart", b =>
                 {
-                    b.Navigation("CardItems");
+                    b.Navigation("CartItems");
                 });
 #pragma warning restore 612, 618
         }

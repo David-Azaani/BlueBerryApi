@@ -7,14 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlueBerry_API.Controllers
 {
-    [Route("api/ShoppingCard")]
+    [Route("api/ShoppingCart")]
     [ApiController]
-    public class ShoppingCardController : ControllerBase
+    public class ShoppingCartController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
         private  ApiResponse _response;
 
-        public ShoppingCardController(ApplicationDbContext db)
+        public ShoppingCartController(ApplicationDbContext db)
         {
             _db = db;
             _response = new ApiResponse();
@@ -23,7 +23,7 @@ namespace BlueBerry_API.Controllers
         [HttpPost]
         public async Task<ActionResult<ApiResponse>> AddOrUpdateItemInCart(string userId, int menuItemId, int updatedQuantity)
         {
-            var shoppingCard = await _db.ShoppingCards.Include(a => a.CardItems).FirstOrDefaultAsync(a => a.UserId == userId);
+            var shoppingCart = await _db.ShoppingCarts.Include(a => a.CartItems).FirstOrDefaultAsync(a => a.UserId == userId);
             var menuItem = await _db.MenuItems.FirstOrDefaultAsync(a => a.Id == menuItemId);
 
             if (menuItem == null)
@@ -33,67 +33,73 @@ namespace BlueBerry_API.Controllers
                 return BadRequest(_response);
             }
 
-            if (shoppingCard == null && updatedQuantity > 0)
+            if (shoppingCart == null && updatedQuantity > 0)
             {
 
-                ShoppingCard newCard = new()
+                ShoppingCart newCart = new()
                 {
                     UserId = userId
                 };
 
-                await _db.AddAsync(newCard);
+                await _db.AddAsync(newCart);
                 await _db.SaveChangesAsync();
 
-                CardItem newCardItem = new()
+                CartItem newCartItem = new()
                 {
                     MenuItemId = menuItemId,
                     Quantity = updatedQuantity,
-                    ShoppingCardId = newCard.Id,
+                    ShoppingCartId = newCart.Id,
                     MenuItem = null
 
 
                 };
-                await _db.AddAsync(newCardItem);
+                await _db.AddAsync(newCartItem);
                 await _db.SaveChangesAsync();
-
+                _response.IsSuccess = true;
+                _response.StatusCode = HttpStatusCode.OK;
             }
             else
             {
-                var cardItemInCart = shoppingCard.CardItems.FirstOrDefault(a => a.MenuItemId == menuItemId);
-                // EveryUser has one shopping card
+                var CartItemInCart = shoppingCart.CartItems.FirstOrDefault(a => a.MenuItemId == menuItemId);
+                // EveryUser has one shopping Cart
 
-                if (cardItemInCart == null)
+                if (CartItemInCart == null)
                 {
-                    CardItem newCardItem = new()
+                    CartItem newCartItem = new()
                     {
                         MenuItemId = menuItemId,
                         Quantity = updatedQuantity,
-                        ShoppingCardId = shoppingCard.Id,
+                        ShoppingCartId = shoppingCart.Id,
                         MenuItem = null
 
 
                     };
-                    await _db.AddAsync(newCardItem);
+                    await _db.AddAsync(newCartItem);
                     await _db.SaveChangesAsync();
+                    _response.IsSuccess = true;
+                    _response.StatusCode = HttpStatusCode.OK;
                 }
                 else
                 {
-                    int newQuantity = cardItemInCart.Quantity + updatedQuantity;
+                    int newQuantity = CartItemInCart.Quantity + updatedQuantity;
 
                     if (newQuantity == 0 || newQuantity <= 0)
                     {
-                        _db.CardItems.Remove(cardItemInCart);
-                        if (shoppingCard.CardItems.Count() == 1)
+                        _db.CartItems.Remove(CartItemInCart);
+                        if (shoppingCart.CartItems.Count() == 1)
                         {
-                            _db.ShoppingCards.Remove(shoppingCard);
+                            _db.ShoppingCarts.Remove(shoppingCart);
                         }
-
+                        _response.IsSuccess = true;
+                        _response.StatusCode = HttpStatusCode.OK;
                         await _db.SaveChangesAsync();
                     }
                     else
                     {
-                        cardItemInCart.Quantity = newQuantity;
+                        CartItemInCart.Quantity = newQuantity;
                         await _db.SaveChangesAsync();
+                        _response.IsSuccess = true;
+                        _response.StatusCode = HttpStatusCode.OK;
 
                     }
                 }
@@ -108,7 +114,7 @@ namespace BlueBerry_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse>> GetShoppingCard(string userId)
+        public async Task<ActionResult<ApiResponse>> GetShoppingCart(string userId)
         {
             try
             {
@@ -120,36 +126,36 @@ namespace BlueBerry_API.Controllers
                     return BadRequest(_response);
 
                 }
-                var shoppingCard = await _db.ShoppingCards
-                    .Include(a => a.CardItems)
+                var shoppingCart = await _db.ShoppingCarts
+                    .Include(a => a.CartItems)
                     .ThenInclude(a => a.MenuItem)
                     .FirstOrDefaultAsync(x => x.UserId == userId);
-                if (shoppingCard != null)
+                if (shoppingCart != null)
                 {
                     //_response.IsSuccess = false;
                     //_response.StatusCode = HttpStatusCode.BadRequest;
-                    //_response.ErrorMessages.Add("ShoppingCard Is not Existed!");
+                    //_response.ErrorMessages.Add("ShoppingCart Is not Existed!");
                     //return BadRequest(_response);
 
 
 
 
 
-                    if (shoppingCard.CardItems != null && shoppingCard.CardItems.Count > 0)
+                    if (shoppingCart.CartItems != null && shoppingCart.CartItems.Count > 0)
                     {
-                        // shoppingCard.CartTotalItems = shoppingCard.CardItems.Select(a => a.Quantity).Sum();
-                        shoppingCard.CartTotalItems = shoppingCard.CardItems.Sum(a => a.Quantity);
-                        shoppingCard.CartTotal = shoppingCard.CardItems.Sum(a => a.Quantity * a.MenuItem.Price);
+                        // shoppingCart.CartTotalItems = shoppingCart.CartItems.Select(a => a.Quantity).Sum();
+                        shoppingCart.CartTotalItems = shoppingCart.CartItems.Sum(a => a.Quantity);
+                        shoppingCart.CartTotal = shoppingCart.CartItems.Sum(a => a.Quantity * a.MenuItem.Price);
                     }
                 }
                 //else
                 //{
-                //    shoppingCard.CartTotalItems = 0;
-                //    shoppingCard.CartTotal = 0;
+                //    shoppingCart.CartTotalItems = 0;
+                //    shoppingCart.CartTotal = 0;
                 //}
 
                 _response.IsSuccess = true;
-                _response.Result = shoppingCard;
+                _response.Result = shoppingCart;
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
 
