@@ -22,13 +22,13 @@ Contributions and Support
 Contributions to this project are welcome! If you have any suggestions, improvements, or bug fixes, feel free to submit a pull request. For major changes, please open an issue first to discuss the proposed changes.
 
 If you encounter any issues or have questions about using the API, please check the existing issues in the repository. If your problem persists, feel free to open a new issue, and the community will be happy to assist you.
-## License
+## Acknowledgements
 
-This project is licensed under the MIT License. You are free to use, modify, and distribute the codebase as per the terms of this license.
-Acknowledgments
-
-We would like to thank the contributors and the open-source community for their valuable contributions and support, making this project possible.
-
+We would like to thank the contributors and the open-source community for their valuable contributions and support, in making this project possible.
 If you find this project helpful or have any suggestions, we would love to hear from you!
 
 Happy coding!
+## License
+
+This project is licensed under the MIT License. You are free to use, modify, and distribute the codebase as per the terms of this license.
+
