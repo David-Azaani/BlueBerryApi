@@ -144,7 +144,7 @@ namespace BlueBerry_API.Controllers
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                        new Claim("fullname",user.Name),
+                        new Claim("fullName",user.Name),
                         new Claim("id",user.Id),
                         new Claim(ClaimTypes.Email,user.Email??user.UserName),
                         new Claim(ClaimTypes.Role,userRoles.FirstOrDefault())

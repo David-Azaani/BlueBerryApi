@@ -81,9 +81,10 @@ namespace BlueBerry_API.Controllers
                 }
                 else
                 {
+                    
                     int newQuantity = CartItemInCart.Quantity + updatedQuantity;
 
-                    if (newQuantity == 0 || newQuantity <= 0)
+                    if (newQuantity == 0 || newQuantity <= 0 || updatedQuantity == 0)
                     {
                         _db.CartItems.Remove(CartItemInCart);
                         if (shoppingCart.CartItems.Count() == 1)

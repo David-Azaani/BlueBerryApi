@@ -4,6 +4,7 @@ using BlueBerry_API.Data;
 using BlueBerry_API.Model;
 using BlueBerry_API.Model.Dto;
 using BlueBerry_API.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace BlueBerry_API.Controllers
 {
     [Route("api/Order")]
     [ApiController]
+     [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly ApplicationDbContext _db;

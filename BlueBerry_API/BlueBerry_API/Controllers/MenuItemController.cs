@@ -4,6 +4,8 @@ using BlueBerry_API.Data;
 using BlueBerry_API.Model;
 using BlueBerry_API.Model.Dto;
 using BlueBerry_API.Services.IService;
+using BlueBerry_API.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -35,6 +37,7 @@ namespace BlueBerry_API.Controllers
             {
                 _response.Result = await _db.MenuItems.ToListAsync();
                 _response.StatusCode = HttpStatusCode.OK;
+                //Thread.Sleep(10000);
                 return Ok(_response);
             }
             catch (Exception e)
@@ -83,7 +86,7 @@ namespace BlueBerry_API.Controllers
 
         [HttpPost]
         //we use fromform isntead of frombidy because we want to send image
-
+       [Authorize(Roles = SD.Role_Admin)]
         public async Task<ActionResult<ApiResponse>> CreateMenuItem([FromForm] MenuItemCreateDTO menuItemCreateDto)
         {
             try
@@ -127,6 +130,7 @@ namespace BlueBerry_API.Controllers
 
 
         [HttpPut("{id:int}")]
+         [Authorize(Roles = SD.Role_Admin)]
         public async Task<ActionResult<ApiResponse>> UpdateMenuItem(int id, [FromForm] MenuItemUpdateDTO menuItemUpdateDto)
         {
             try
@@ -185,6 +189,7 @@ namespace BlueBerry_API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+         [Authorize(Roles = SD.Role_Admin)]
         public async Task<ActionResult<ApiResponse>> DeleteMenuItem(int id)
         {
             if (id == 0 || id <= 0)

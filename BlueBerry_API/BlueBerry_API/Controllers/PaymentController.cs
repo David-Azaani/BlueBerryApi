@@ -66,25 +66,32 @@ namespace BlueBerry_API.Controllers
                 #region CreatePayment
 
                 StripeConfiguration.ApiKey = _configuration["Stripe:ApiKey"];
-                double CartTotal = shoppingCart.CartItems.Sum(a => a.Quantity * a.MenuItem.Price);
-
+                //double CartTotal = shoppingCart.CartItems.Sum(a => a.Quantity * a.MenuItem.Price);
+                 shoppingCart.CartTotal = shoppingCart.CartItems.Sum(u => u.Quantity * u.MenuItem.Price);
 
                 var options = new PaymentIntentCreateOptions()
                 {
-                    Amount = (int)(CartTotal * 100),
+                    Amount = (int)(shoppingCart.CartTotal * 100),
                     Currency = "usd",
                     PaymentMethodTypes = new List<string>()
                     {
-                        "Cart"
+
+                        "card"
 
                     }
 
                 };
                 var service = new PaymentIntentService();
                 var response = await service.CreateAsync(options);
-                shoppingCart.StripPaymentIntentId = response.PaymentMethodId;
-                shoppingCart.ClientSecret = response.Id;
+                shoppingCart.StripPaymentIntentId = response.Id;
+                shoppingCart.ClientSecret = response.ClientSecret;
                 _response.Result = shoppingCart;
+
+
+             
+
+
+
             }
             catch (Exception e)
             {
